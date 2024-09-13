@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member.dao.MemberDAO">
+
+    <resultMap type="memberVO" id="memberMap">
+        <result column="ID" property="id"/>
+        <result column="PASSWORD" property="password"/>
+        <result column="NAME" property="name"/>
+        <result column="BIRTH_DATE" property="birthDate"/>
+        <result column="PHONE" property="phone"/>
+        <result column="POST" property="post"/>
+        <result column="BASIC_ADDR" property="basicAddr"/>
+        <result column="DETAIL_ADDR" property="detailAddr"/>
+        <result column="EMAIL" property="email"/>
+        <result column="REG_DATE" property="regDate"/>
+        <result column="GRADE" property="grade"/>
+        <result column="OAUTH" property="oauth"/>
+        <result column="ADMIN" property="admin"/>
+    </resultMap>
+
+    <select id="selectMember" resultMap="memberMap" parameterType="Map">
+        SELECT * FROM member@DOG_XE 
+        WHERE ID = #{id} AND PASSWORD = #{password}
+    </select>
+
+    <insert id="insertMember" parameterType="memberVO">
+        INSERT INTO member@DOG_XE (ID, PASSWORD, NAME, BIRTH_DATE, PHONE, POST, BASIC_ADDR, DETAIL_ADDR, EMAIL)
+        VALUES (#{id}, #{password}, #{name}, #{birthDate}, #{phone}, #{post}, #{basicAddr}, #{detailAddr}, #{email})
+    </insert>
+
+    <select id="checkUserId" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM member@DOG_XE WHERE ID = #{userId}
+    </select>
+    
+    <select id="selectMemberById" parameterType="string" resultType="kr.ac.mydog.member.vo.MemberVO">
+        SELECT ID, PASSWORD, NAME, BIRTH_DATE, PHONE, POST, BASIC_ADDR, DETAIL_ADDR, EMAIL, REG_DATE, GRADE, OAUTH, ADMIN
+        FROM MEMBER@DOG_XE
+        WHERE ID = #{userId}
+    </select>
+    <!-- 쿠키 로그인 테스트 -->
+    <select id="findById" resultType="kr.ac.mydog.member.vo.MemberVO" parameterType="Map">
+    	SELECT * FROM member@DOG_XE
+    	 WHERE ID = #{id} AND PASSWORD = #{password}
+    </select>
+</mapper>

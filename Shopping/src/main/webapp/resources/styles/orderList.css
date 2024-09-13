@@ -1,0 +1,68 @@
+@charset "UTF-8";
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.order_list_container {
+    width: 80%;
+    margin: 50px auto;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.order_list_container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.order_list {
+    width: 100%;
+}
+
+.order_item {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
+
+.order_item:last-child {
+    border-bottom: none;
+}
+
+.order_item div {
+    margin: 5px 0;
+}
+
+.order_no,
+.order_status,
+.order_total,
+.order_date,
+.order_address {
+    font-size: 16px;
+    color: #333;
+}
+
+.order_total {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.order_status {
+    color: #28a745;
+}
+
+.order_date {
+    color: #6c757d;
+}
+
+.order_address {
+    color: #555;
+}

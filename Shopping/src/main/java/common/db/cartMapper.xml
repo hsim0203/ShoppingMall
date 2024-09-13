@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cart.dao.CartDAO">
+
+    <resultMap type="cartVO" id="cartMap">
+        <result property="cartNo" column="C_NO"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="productCode" column="P_CODE"/>
+        <result property="quantity" column="QUANTITY"/>
+        <result property="cartRegDate" column="C_REG_DATE"/>
+        <result property="cartPrice" column="C_PRICE"/>
+        <result property="productName" column="P_NAME"/>
+        <result property="productImage" column="IMG_LINK"/>
+    </resultMap>
+
+    <select id="selectCartProduct" resultMap="cartMap" parameterType="map">
+        SELECT * FROM CART
+        WHERE USER_ID = #{userId} AND P_CODE = #{productCode}
+    </select>
+
+    <insert id="insertCart" parameterType="cartVO">
+        INSERT INTO CART (C_NO, USER_ID, P_CODE, QUANTITY, C_PRICE)
+        VALUES (seq_CART_CART_NO.NEXTVAL, #{userId}, #{productCode}, #{quantity}, #{cartPrice})
+    </insert>
+
+    <update id="updateCart" parameterType="cartVO">
+        UPDATE CART
+        SET QUANTITY = #{quantity},
+            C_PRICE = #{cartPrice}
+        WHERE C_NO = #{cartNo}
+    </update>
+    
+    <select id="selectCartByUserId" resultMap="cartMap">
+        SELECT c.C_NO, c.USER_ID, c.P_CODE, c.QUANTITY, c.C_REG_DATE, c.C_PRICE,
+               p.P_NAME, pi.IMG_LINK
+          FROM CART c
+          JOIN PRODUCTS p ON c.P_CODE = p.P_CODE
+          JOIN PRODUCT_IMAGES pi ON p.P_CODE = pi.P_CODE
+         WHERE c.USER_ID = #{userId}
+           AND pi.IMG_TYPE = 'P'
+    </select>
+    
+    <delete id="deleteCartProduct" parameterType="map">
+        DELETE FROM CART
+         WHERE USER_ID = #{userId}
+           AND P_CODE = #{productCode}
+    </delete>
+
+	<select id="selectCartProductsByIds" parameterType="map" resultMap="cartMap">
+	    SELECT c.*, p.P_NAME as P_NAME
+	      FROM CART c
+	   	  JOIN PRODUCTS p ON c.P_CODE = p.P_CODE
+	     WHERE c.USER_ID = #{userId}
+           AND c.P_CODE IN
+        <foreach item="item" index="index" collection="productIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</select>
+	
+	<delete id="deleteCart" parameterType="int">
+        DELETE FROM CART WHERE CART_ID = #{cartId}
+    </delete>
+    
+    <delete id="deleteSelectedCartProducts" parameterType="map">
+        DELETE FROM CART
+         WHERE USER_ID = #{userId}
+           AND P_CODE IN
+        <foreach item="item" index="index" collection="productIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+	
+	<delete id="clearCart" parameterType="String">
+        DELETE FROM CART WHERE USER_ID = #{userId}
+    </delete>
+	
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="review.dao.ReviewDAO">
+    <select id="selectReByPCode" resultType="kr.ac.mydog.review.vo.ReviewVO">
+        SELECT REVIEW_NO, P_CODE AS productCode, USER_ID as userId, RATING, R_COMMENT AS rCOMMENT, CREATED_AT AS rRegDate 
+          FROM REVIEWS
+        WHERE P_CODE = #{productCode}
+        ORDER BY CREATED_AT DESC
+    </select>
+</mapper>

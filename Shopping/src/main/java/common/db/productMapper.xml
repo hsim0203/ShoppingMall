@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="product.dao.ProductDAO">
+
+	<resultMap type="productVO" id="productMap">
+		<result column="p_code" property="productCode"/>
+		<result column="p_name" property="productName"/>
+		<result column="p_price" property="productPrice"/>
+		<result column="p_stock" property="productStock"/>
+		<result column="p_reg_date" property="productRegDate"/>
+		<result column="p_detail" property="productDetail"/>
+		<result column="c_code" property="categoriCode"/>
+		<result column="c_name" property="categoriName"/>
+		<result column="img_no" property="imgNo"/>
+		<result column="img_link" property="imgLink"/>
+		<result column="img_type" property="img_type"/>
+	</resultMap>
+	
+	<select id="mainRecentlyAdd" resultMap="productMap">
+		SELECT * 
+		  FROM (
+		  	  	SELECT P.P_CODE, P_NAME, P_PRICE, p.C_CODE, C_NAME, P_DETAIL, PI.IMG_LINK as IMG_LINK
+  		  		  FROM PRODUCTS P
+  		 		  JOIN PRODUCT_IMAGES PI ON P.P_CODE = PI.P_CODE
+  		 		  JOIN CATEGORIES	   c ON p.c_code = c.c_code
+  		         WHERE PI.IMG_TYPE = 'P'
+  		         ORDER BY P_REG_DATE DESC 
+		  ) 
+		  WHERE ROWNUM <![CDATA[<=]]> 10
+	</select>
+	
+	<select id="productDetail" resultMap="productMap" parameterType="String">
+		SELECT *
+		  FROM (
+		 		SELECT P.*, C_NAME, IMG_LINK 
+		 		  FROM PRODUCTS p 
+		 		  JOIN PRODUCT_IMAGES PI ON P.P_CODE = PI.P_CODE
+		 		  JOIN CATEGORIES c ON p.c_code = c.c_code
+		 		 WHERE IMG_TYPE = 'P'
+		 		   AND P.P_CODE = #{productCode} 
+		  		)
+	</select>
+	
+	<select id="productDetailImg" resultMap="productMap" parameterType="String">
+		SELECT IMG_LINK
+		  FROM PRODUCT_IMAGES
+		 WHERE IMG_TYPE = 'D'
+  		   AND P_CODE = #{productCode} 
+	</select>
+	
+	<select id="categories" resultMap="productMap" parameterType="String">
+		SELECT * 
+		  FROM (
+		  	  	SELECT P.P_CODE, P_NAME, P_PRICE, p.C_CODE, C_NAME, P_DETAIL, PI.IMG_LINK as IMG_LINK
+		  		  FROM PRODUCTS P
+		 		  JOIN PRODUCT_IMAGES PI ON P.P_CODE = PI.P_CODE
+		 		  JOIN CATEGORIES c ON p.c_code = c.c_code
+		         WHERE PI.IMG_TYPE = 'P'
+		           AND P.C_CODE LIKE '${categoriCode}%'
+		         ORDER BY P_REG_DATE DESC 
+		  )
+	</select>
+    <insert id="insertProduct" parameterType="kr.ac.mydog.product.vo.ProductVO">
+        INSERT INTO PRODUCTS (P_CODE, P_NAME, P_PRICE, P_STOCK, P_DETAIL, C_CODE)
+        VALUES (#{productCode}, #{productName}, #{productPrice}, #{productStock}, #{productDetail}, #{categoriCode})
+        
+    </insert>
+    <insert id="insertProductImage" parameterType="kr.ac.mydog.product.vo.ProductVO">
+        INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
+        VALUES (seq_PRODUCT_IMAGES_IMG_NO.NEXTVAL, #{productCode}, #{imgLink}, #{imgType})
+    </insert>    
+	
+	<!-- 상품 재고 업데이트 -->
+    <update id="updateProductStock" parameterType="map">
+        UPDATE PRODUCTS
+        SET P_STOCK = P_STOCK - #{quantity}
+        WHERE P_CODE = #{productCode}
+    </update>
+	
+</mapper>

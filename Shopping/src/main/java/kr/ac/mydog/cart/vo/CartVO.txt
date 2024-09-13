@@ -1,0 +1,58 @@
+package kr.ac.mydog.cart.vo;
+
+public class CartVO {
+	private int cartNO;
+	private String userID;
+	private String productCode;
+	private int quantity;
+	private String cartRegDate;
+	private int cartPrice;
+	
+	public CartVO() {
+		
+	}
+	
+	public int getCartNO() {
+		return cartNO;
+	}
+	public void setCartNO(int cartNO) {
+		this.cartNO = cartNO;
+	}
+	public String getUserID() {
+		return userID;
+	}
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
+	public String getProductCode() {
+		return productCode;
+	}
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+	public int getQuantity() {
+		return quantity;
+	}
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	public String getCartRegDate() {
+		return cartRegDate;
+	}
+	public void setCartRegDate(String cartRegDate) {
+		this.cartRegDate = cartRegDate;
+	}
+	public int getCartPrice() {
+		return cartPrice;
+	}
+	public void setCartPrice(int cartPrice) {
+		this.cartPrice = cartPrice;
+	}
+	
+	@Override
+	public String toString() {
+		return "CartVO [cartNO=" + cartNO + ", userID=" + userID + ", productCode=" + productCode + ", quantity="
+				+ quantity + ", cartRegDate=" + cartRegDate + ", cartPrice=" + cartPrice + "]";
+	}
+	
+}
