@@ -53,9 +53,9 @@ CREATE TABLE PRODUCTS (
     P_NAME VARCHAR2(100) NOT NULL, -- 제품명
     P_PRICE NUMBER(10, 2) NOT NULL, -- 가격
     P_STOCK NUMBER NOT NULL, -- 재고 수량
-    P_REG_DATE DATE DEFAULT SYSDATE -- 제품 등록 일시
+    P_REG_DATE DATE DEFAULT SYSDATE, -- 제품 등록 일시
     C_CODE VARCHAR2(30) NOT NULL,
-    P_DETAIL VARCHAR2(1000),
+    P_DETAIL VARCHAR2(1000)
 );
 ALTER TABLE PRODUCTS ADD FOREIGN KEY (C_CODE) REFERENCES CATEGORIES(C_CODE);
 
@@ -69,7 +69,6 @@ CREATE TABLE ORDERS (
     O_REG_DATE DATE DEFAULT SYSDATE, -- 주문 생성 일시
     FOREIGN KEY (USER_ID) REFERENCES MEMBER(ID), -- 참조 키
     FOREIGN KEY (P_CODE) REFERENCES PRODUCTS(P_CODE) -- 참조 키
-    sk
 );
 CREATE SEQUENCE seq_ORDERs_ORDER_NO nocache;
 
@@ -83,6 +82,7 @@ CREATE TABLE REVIEWS (
     CONSTRAINT FK_REVIEW_P_CODE FOREIGN KEY (P_CODE) REFERENCES PRODUCTS(P_CODE) -- 참조 키
 );
 CREATE SEQUENCE seq_REVIEWS__REVIEW_NO nocache;
+ALTER TABLE REVIEWS ADD FOREIGN KEY (USER_ID) REFERENCES Member(ID);
 
 CREATE TABLE CART (
     C_NO NUMBER(10) PRIMARY KEY, -- 기본 키
@@ -91,9 +91,8 @@ CREATE TABLE CART (
     C_PRICE NUMBER(10, 2) NOT NULL,
     QUANTITY NUMBER NOT NULL, -- 수량
     C_REG_DATE DATE DEFAULT SYSDATE,-- 추가된 일시
-    c_price NUMBER(10, 2) NOT NULL,
-    FOREIGN KEY (USER_ID) REFERENCES MEMBER(ID) ON DELETE CASCADE, -- 참조 키
-    FOREIGN KEY (P_CODE) REFERENCES PRODUCTS(P_CODE) -- 참조 키
+    CONSTRAINT FK_CART_USER_ID FOREIGN KEY (USER_ID) REFERENCES MEMBER(ID) ON DELETE CASCADE, -- 참조 키
+    CONSTRAINT FK_CART_P_CODE FOREIGN KEY (P_CODE) REFERENCES PRODUCTS(P_CODE) -- 참조 키
 );
 CREATE SEQUENCE seq_CART_CART_NO nocache;
 
@@ -104,12 +103,8 @@ CREATE TABLE PRODUCT_IMAGES (
     IMG_TYPE CHAR(1) NOT NULL,--미리보기, 상세보기 이미지 구분 'P', 'D'
     FOREIGN KEY (P_CODE) REFERENCES PRODUCTS(P_CODE) -- 참조 키  
 );
-
+CREATE SEQUENCE seq_PRODUCT_IMAGES_IMAGE_NO nocache;
 COMMIT;
-
-=======================================================================
-=======================================================================
-DB링크 설정
 
 CREATE DATABASE LINK DOG_XE CONNECT TO dogworld identified BY "dog1234" 
 USING '(DESCRIPTION = 
@@ -131,67 +126,7 @@ USING '(DESCRIPTION =
 --  ) 
 
 COMMIT;
-=======================================================================
-=======================================================================
 
-DB링크 추가후 멤버테이블 무결성을 위한 트리거 설정
-
--- 원격 멤버테이블 장바구니 트리거 설정
-CREATE OR REPLACE TRIGGER check_member_fk
-BEFORE INSERT OR UPDATE OR DELETE ON CART --INSERT나 UPDATE, DELETE실행시 트리거 발생
-FOR EACH ROW -- 각행에 대해
-DECLARE
-    v_count NUMBER;	--ID가 일치한지 카운트를 저장하는 변수
-BEGIN
-    -- 원격 데이터베이스의 MEMBER 테이블을 확인
-    SELECT COUNT(*)
-    INTO v_count
-    FROM MEMBER@DOG_XE
-    WHERE ID = :NEW.USER_ID;    
-    IF v_count = 0 THEN --일치하는 아이디가 존재하지않을떄
-        -- 원격 데이터베이스에 USER_ID가 존재하지 않으면 에러 발생
-        RAISE_APPLICATION_ERROR(-20000, 'Invalid USER_ID, reference does not exist in MEMBER table');
-    END IF;
-END;
-
-CREATE OR REPLACE TRIGGER check_member_fk_orders
-BEFORE INSERT OR UPDATE ON ORDERS
-FOR EACH ROW
-DECLARE
-    v_count NUMBER;
-BEGIN
-    -- 원격 데이터베이스의 MEMBER 테이블을 확인
-    SELECT COUNT(*)
-    INTO v_count
-    FROM MEMBER@DOG_XE
-    WHERE ID = :NEW.USER_ID;
-    
-    IF v_count = 0 THEN
-        -- 원격 데이터베이스에 USER_ID가 존재하지 않으면 에러 발생
-        RAISE_APPLICATION_ERROR(-20000, 'Invalid USER_ID, reference does not exist in MEMBER table');
-    END IF;
-END;
-/
-
-CREATE OR REPLACE TRIGGER check_member_fk_reviews
-BEFORE INSERT OR UPDATE OR DELETE  ON reviews
-FOR EACH ROW
-DECLARE
-    v_count NUMBER;
-BEGIN
-    SELECT COUNT(*)
-    INTO v_count
-    FROM MEMBER@DOG_XE
-    WHERE ID = :NEW.USER_ID; 
-    IF v_count = 0 THEN
-        RAISE_APPLICATION_ERROR(-20000, 'Invalid USER_ID, reference does not exist in MEMBER table');
-    END IF;
-END;
-/
-
-
-=======================================================================
-=======================================================================
 --데이터 추가
 ---유저
 INSERT INTO "MEMBER" (ID, PASSWORD, NAME, BIRTH_DATE, PHONE, POST, BASIC_ADDR, DETAIL_ADDR, EMAIL, ADMIN)
@@ -211,15 +146,7 @@ INSERT INTO DOG (NO, MEMBER_ID, NAME, BIRTH_DATE, BREED_CODE)
 VALUES(seq_dog_no.nextval, 'imhs0203', '강아지', '2016-01-01', '1');
 
 COMMIT;
---리뷰
-INSERT INTO REVIEWS (REVIEW_NO , P_CODE, USER_ID, RATING, R_COMMENT)
-VALUES(seq_REVIEWS__REVIEW_NO.nextval, 'FE0012', 'imhs0203', '5', '배송이 정말 빨라서 좋아요!!');
 
-INSERT INTO REVIEWS (REVIEW_NO , P_CODE, USER_ID, RATING, R_COMMENT)
-VALUES(seq_REVIEWS__REVIEW_NO.nextval, 'FE0012', 'imhs0203', '4', '택배상자가 조금 구겨져서 왔지만 상품은 좋아요');
-
-INSERT INTO REVIEWS (REVIEW_NO , P_CODE, USER_ID, RATING, R_COMMENT)
-VALUES(seq_REVIEWS__REVIEW_NO.nextval, 'FE0012', 'imhs0203', '5', '정말 만족합니다');
 ------데이터
 --카테고리
 --사료
@@ -371,9 +298,6 @@ VALUES('FE0011', '로얄캐닌 강아지사료 라브라도리트리버 어덜�
 INSERT INTO PRODUCTS (P_CODE, P_NAME, P_PRICE, P_STOCK, C_CODE, P_DETAIL)
 VALUES('FE0012', '오리젠 사료 스몰브리드 독 1.8kg', 38000, 1000, '10001', '원산지 - 캐나다, 유통기한 - 18개월 / 2025년 10월 10일 이후, 제조사/수입사 - 챔피온펫푸드/두원실업(주), 권장연령 - 모든연령');
 
-INSERT INTO PRODUCTS (P_CODE, P_NAME, P_PRICE, P_STOCK, C_CODE, P_DETAIL)
-VALUES('FE0011', '로얄캐닌 강아지사료 라브라도리트리버 어덜트 12kg', 120000, 500, '10001', '원산지 - 프랑스, 유통기한 - 18개월 / 2025년 02월 03일 이후, 제조사/수입사 - 로얄캐닌, 권장연령 - 생후 15개월 이후');
-
 INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
 VALUES(seq_PRODUCT_IMAGES_IMAGE_NO.nextval, 'FE0002', 'https://puppydog.co.kr/web/product/medium/202406/94b64e6792d30cd2a6fec267c3e788b7.jpg', 'P');
 INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
@@ -396,7 +320,7 @@ VALUES(seq_PRODUCT_IMAGES_IMAGE_NO.nextval, 'SN0001', 'https://cdn.dogpang.com/c
 INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
 VALUES(seq_PRODUCT_IMAGES_IMAGE_NO.nextval, 'SN0001', 'https://cdn.dogpang.com/catpang/data/goods/6/5610_web_detailView_1671698483225556.jpg', 'D');
 
-INSERT INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
+INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
 VALUES(seq_PRODUCT_IMAGES_IMAGE_NO.nextval, 'SN0002', 'https://cdn.dogpang.com/catpang/data/goods/6/5596_web_original_1601967189317729.jpg', 'P');
 INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
 VALUES(seq_PRODUCT_IMAGES_IMAGE_NO.nextval, 'SN0002', 'https://cdn.dogpang.com/catpang/data/goods/6/5596_web_detailView_1601967189932108.jpg', 'D');
@@ -501,5 +425,14 @@ VALUES(seq_PRODUCT_IMAGES_IMAGE_NO.nextval, 'FE0012', 'https://cdn.dogpang.com/c
 INSERT INTO PRODUCT_IMAGES (IMG_NO, P_CODE, IMG_LINK, IMG_TYPE)
 VALUES(seq_PRODUCT_IMAGES_IMAGE_NO.nextval, 'FE0012', 'https://cdn.dogpang.com/catpang/data/goods/8/7509_web_detailView_1669185892929996.jpg', 'D');
 
+--리뷰
+INSERT INTO REVIEWS (REVIEW_NO , P_CODE, USER_ID, RATING, R_COMMENT)
+VALUES(seq_REVIEWS__REVIEW_NO.nextval, 'FE0012', 'imhs0203', '5', '배송이 정말 빨라서 좋아요!!');
+
+INSERT INTO REVIEWS (REVIEW_NO , P_CODE, USER_ID, RATING, R_COMMENT)
+VALUES(seq_REVIEWS__REVIEW_NO.nextval, 'FE0012', 'imhs0203', '4', '택배상자가 조금 구겨져서 왔지만 상품은 좋아요');
+
+INSERT INTO REVIEWS (REVIEW_NO , P_CODE, USER_ID, RATING, R_COMMENT)
+VALUES(seq_REVIEWS__REVIEW_NO.nextval, 'FE0012', 'imhs0203', '5', '정말 만족합니다');
 
 COMMIT;
