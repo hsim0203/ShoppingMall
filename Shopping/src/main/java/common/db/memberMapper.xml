@@ -19,7 +19,8 @@
         <result column="OAUTH" property="oauth"/>
         <result column="ADMIN" property="admin"/>
     </resultMap>
-
+    <!-- 스프링 통합페이지 로그인 -->
+<!--  
     <select id="selectMember" resultMap="memberMap" parameterType="Map">
         SELECT * FROM member@DOG_XE 
         WHERE ID = #{id} AND PASSWORD = #{password}
@@ -39,9 +40,31 @@
         FROM MEMBER@DOG_XE
         WHERE ID = #{userId}
     </select>
+    -->
+    <!-- 로그인 -->
+    <select id="selectMember" resultMap="memberMap" parameterType="Map">
+        SELECT * FROM member 
+        WHERE ID = #{id} AND PASSWORD = #{password}
+    </select>
+
+    <insert id="insertMember" parameterType="memberVO">
+        INSERT INTO member (ID, PASSWORD, NAME, BIRTH_DATE, PHONE, POST, BASIC_ADDR, DETAIL_ADDR, EMAIL)
+        VALUES (#{id}, #{password}, #{name}, #{birthDate}, #{phone}, #{post}, #{basicAddr}, #{detailAddr}, #{email})
+    </insert>
+
+    <select id="checkUserId" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM member WHERE ID = #{userId}
+    </select>
+    
+    <select id="selectMemberById" parameterType="string" resultType="kr.ac.mydog.member.vo.MemberVO">
+        SELECT ID, PASSWORD, NAME, BIRTH_DATE, PHONE, POST, BASIC_ADDR, DETAIL_ADDR, EMAIL, REG_DATE, GRADE, OAUTH, ADMIN
+        FROM MEMBER
+        WHERE ID = #{userId}
+    </select>
+    
     <!-- 쿠키 로그인 테스트 -->
     <select id="findById" resultType="kr.ac.mydog.member.vo.MemberVO" parameterType="Map">
-    	SELECT * FROM member@DOG_XE
+    	SELECT * FROM member
     	 WHERE ID = #{id} AND PASSWORD = #{password}
     </select>
 </mapper>

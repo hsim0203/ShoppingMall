@@ -44,7 +44,7 @@
         INSERT INTO ORDER_DETAILS (
             ORDER_DETAIL_NO, ORDER_NO, P_CODE, QUANTITY, PRICE
         ) VALUES (
-            seq_ORDER_DETAILS_ORDER_DETAIL_NO.NEXTVAL,
+            seq_ORDER_DETAIL_NO.NEXTVAL,
             #{orderNo}, #{productCode}, #{quantity}, #{price}
         )
     </insert>
