@@ -4,4 +4,4 @@
 
 [![Video Label](http://img.youtube.com/vi/WydKeM5VnOU/0.jpg)](https://www.youtube.com/watch?v=WydKeM5VnOU)
 
-AJAX를 통한 비동기 통신(로그인 중복 체크)
+## AJAX를 통한 비동기 통신(로그인 중복 체크)
