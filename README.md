@@ -1,4 +1,4 @@
-### **[Mydog 애견용품 쇼핑몰]**
+# **[Mydog 애견용품 쇼핑몰]**
 ---
 ## 시연영상 Youtube
 [![Video Label](http://img.youtube.com/vi/WydKeM5VnOU/0.jpg)](https://www.youtube.com/watch?v=WydKeM5VnOU)
