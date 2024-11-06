@@ -1,4 +1,6 @@
 # **[Mydog 애견용품 쇼핑몰]**
+프로젝트 기간 : 2024.06.26 ~ 2024.07.04
+- **프로젝트 인원 :** 개인 프로젝트
 ---
 ## 시연영상 Youtube
 [![Video Label](http://img.youtube.com/vi/WydKeM5VnOU/0.jpg)](https://www.youtube.com/watch?v=WydKeM5VnOU)
