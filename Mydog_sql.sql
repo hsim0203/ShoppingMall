@@ -144,7 +144,7 @@ SELECT * FROM USER_SEQUENCES;
 --데이터 추가
 ---유저
 INSERT INTO "MEMBER" (ID, PASSWORD, NAME, BIRTH_DATE, PHONE, POST, BASIC_ADDR, DETAIL_ADDR, EMAIL, ADMIN)
-VALUES('qwe1234', 'qwe123', '임현수', '2000-01-01', '01012345678', '12345', '경기도 성남시 분당구', '302동 302호', 'qwe1234@naver.com', 'A');
+VALUES('qwe1234', 'qwe123', '홍길동', '2000-01-01', '01012345678', '12345', '경기도 성남시 분당구', '302동 302호', 'qwe1234@naver.com', 'A');
 COMMIT;
 
 INSERT INTO BREED ( NO , DOG_SIZE, BREED_NAME)
